@@ -392,11 +392,14 @@ static NSString *const kCheckOutIPURL = @"";
 
 - (void)traceRouteDidEnd
 {
+    [self startTRTraceroute];
+}
+
+-(void)onFinishAll{
     _isRunning = NO;
     if (self.delegate && [self.delegate respondsToSelector:@selector(netDiagnosisDidEnd:)]) {
         [self.delegate netDiagnosisDidEnd:_logInfo];
     }
-    [self startTRTraceroute];
 }
 
 #pragma mark - onTRTraceroute
@@ -411,6 +414,7 @@ static NSString *const kCheckOutIPURL = @"";
                              } finish:^(NSArray<TRTracerouteRecord *> *results, BOOL succeed) {
                                  [weakSelf recordStepInfo:succeed?@"> Traceroute成功 <":@"> Traceroute失败 <"];
                                  [weakSelf recordStepInfo:@"\n网络诊断结束\n"];
+                                 [weakSelf onFinishAll];
                              }];
 }
 

@@ -10,8 +10,8 @@ Pod::Spec.new do |s|
   s.platform = :ios
   s.requires_arc = true
   s.ios.deployment_target = '7.0'
-  s.ios.public_header_files = 'LDNetDiagnoService/*.h'
-  s.ios.source_files = 'LDNetDiagnoService/*.{h,m}'
+  s.ios.public_header_files = 'LDNetDiagnoService/**/*.h'
+  s.ios.source_files = 'LDNetDiagnoService/**/*.{h,m}'
   s.ios.framework = 'CoreTelephony'
   s.ios.library = 'resolv'
 end
