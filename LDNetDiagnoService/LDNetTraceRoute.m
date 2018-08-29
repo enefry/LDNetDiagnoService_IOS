@@ -212,7 +212,7 @@
                 break;
             } else {
              */
-                [self.delegate appendRouteLog:[NSString stringWithFormat:@"%d\t********\t", ttl]];
+                [self.delegate appendRouteLog:[NSString stringWithFormat:@"%-3d *************** |     *     |     *     |     *     |", ttl]];
             /*}*/
         }
         

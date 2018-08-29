@@ -17,6 +17,8 @@
 
 #import <sys/sysctl.h>
 #import <netinet/in.h>
+#import <CoreTelephony/CTTelephonyNetworkInfo.h>
+#import "TRAPAppleReachability.h"
 
 #if TARGET_IPHONE_SIMULATOR
     #if __IPHONE_OS_VERSION_MAX_ALLOWED < 110000 //iOS11，用数字不用宏定义的原因是低版本XCode不支持110000的宏定义
@@ -328,6 +330,35 @@
     return [NSArray arrayWithArray:servers];
 }
 
++(NETWORK_TYPE)networkTypeForRadioAccessString:(NSString*)string{
+    static NSSet* typeStrings2G = nil;
+    static NSSet* typeStrings3G = nil;
+    static NSSet* typeStrings4G = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        typeStrings2G = [NSSet setWithArray:@[CTRadioAccessTechnologyEdge,
+                          CTRadioAccessTechnologyGPRS,
+                          CTRadioAccessTechnologyCDMA1x]];
+
+        typeStrings3G = [NSSet setWithArray:@[CTRadioAccessTechnologyHSDPA,
+                          CTRadioAccessTechnologyWCDMA,
+                          CTRadioAccessTechnologyHSUPA,
+                          CTRadioAccessTechnologyCDMAEVDORev0,
+                          CTRadioAccessTechnologyCDMAEVDORevA,
+                          CTRadioAccessTechnologyCDMAEVDORevB,
+                          CTRadioAccessTechnologyeHRPD]];
+        typeStrings4G = [NSSet setWithArray:@[CTRadioAccessTechnologyLTE]];
+    });
+    if([typeStrings2G containsObject:string]){
+        return NETWORK_TYPE_2G;
+    }else if ([typeStrings3G containsObject:string]){
+        return NETWORK_TYPE_3G;
+    }else if ([typeStrings4G containsObject:string]){
+        return NETWORK_TYPE_4G;
+    }else {
+        return NETWORK_TYPE_5G;
+    }
+}
 
 /*!
  * 获取当前网络类型
@@ -335,43 +366,30 @@
  */
 + (NETWORK_TYPE)getNetworkTypeFromStatusBar
 {
-    UIApplication *app = [UIApplication sharedApplication];
-    NETWORK_TYPE nettype = NETWORK_TYPE_NONE;
-    //iOS11
-    if ([[app valueForKeyPath:@"_statusBar"] isKindOfClass:NSClassFromString(@"UIStatusBar_Modern")]) {
-        NSArray *views = [[[[app valueForKeyPath:@"statusBar"] valueForKeyPath:@"statusBar"] valueForKeyPath:@"foregroundView"] subviews];
-        for (UIView *view in views) {
-            for (id child in view.subviews) {
-                //wifi
-                if ([child isKindOfClass:NSClassFromString(@"_UIStatusBarWifiSignalView")]) {
-                    nettype = NETWORK_TYPE_WIFI;
-                }
-                //2G 3G 4G
-                if ([child isKindOfClass:NSClassFromString(@"_UIStatusBarStringView")]) {
-                    if ([[child valueForKey:@"_originalText"] containsString:@"2G"]) {
-                        nettype = NETWORK_TYPE_2G;
-                    } else if ([[child valueForKey:@"_originalText"] containsString:@"3G"]) {
-                        nettype = NETWORK_TYPE_3G;
-                    } else if ([[child valueForKey:@"_originalText"] containsString:@"4G"]) {
-                        nettype = NETWORK_TYPE_4G;
-                    }
-                }
-            }
-        }
-    } else {
-        NSArray *subviews = [[[[UIApplication sharedApplication] valueForKey:@"statusBar"]
-                              valueForKey:@"foregroundView"] subviews];
-        NSNumber *dataNetworkItemView = nil;
-        for (id subview in subviews) {
-            if ([subview isKindOfClass:[NSClassFromString(@"UIStatusBarDataNetworkItemView") class]]) {
-                dataNetworkItemView = subview;
+    // wifi 蜂窝判断:
+    NETWORK_TYPE type = NETWORK_TYPE_NONE;
+    switch([[TRAPAppleReachability reachabilityForInternetConnection]currentReachabilityStatus]){
+            case TRAPAppleReachableViaWiFi:{
+                type = NETWORK_TYPE_WIFI;
                 break;
             }
+            case TRAPAppleReachableViaWWAN:{
+                if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0)
+                {
+                    CTTelephonyNetworkInfo *teleInfo = [[CTTelephonyNetworkInfo alloc] init];
+                    NSString *accessString = teleInfo.currentRadioAccessTechnology;
+                    if ([accessString length] > 0)
+                    {
+                        type = [self networkTypeForRadioAccessString:accessString];
+                    }
+                }
+                break;
+            }
+        default:{
+            type = NETWORK_TYPE_NONE;
         }
-        NSNumber *num = [dataNetworkItemView valueForKey:@"dataNetworkType"];
-        nettype = [num intValue];
     }
-   return nettype;
+   return type;
 }
 
 

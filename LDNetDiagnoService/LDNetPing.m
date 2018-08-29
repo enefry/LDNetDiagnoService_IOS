@@ -208,9 +208,10 @@
 #pragma unused(packet)
     //由于IPV6在IPheader中不返回TTL数据，所以这里不返回TTL，改为返回Type
     //http://blog.sina.com.cn/s/blog_6a1837e901012ds8.html
-    NSString *icmpReplyType = [NSString stringWithFormat:@"%@", [LDSimplePing icmpInPacket:packet]->type == 129 ? @"ICMPv6TypeEchoReply" : @"ICMPv4TypeEchoReply"];
+//    [LDSimplePing icmpInPacket:packet]
+    NSString *icmpReplyType = [NSString stringWithFormat:@"%@", [LDSimplePing icmpInPacket:packet]->type == 129 ? @"ICMPv6EchoReply" : @"ICMPv4EchoReply"];
     NSString *successLog = [NSString
-        stringWithFormat:@"%lu bytes from %@ icmp_seq=#%u type=%@ time=%ldms",
+        stringWithFormat:@"%lu bytes from %@ icmp_seq=%u type=%@ time=%ldms",
                          (unsigned long)[packet length], _hostAddress,
                          sequenceNumber,
                          icmpReplyType,

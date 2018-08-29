@@ -16,8 +16,11 @@
 #import "LDNetConnect.h"
 #import "TRTraceroute.h"
 
+#define TRLocalizedString(key) NSLocalizedStringFromTable(key, @"LDNetDiagnoService", @"")
 static NSString *const kPingOpenServerIP = @"www.apple.com";
-static NSString *const kCheckOutIPURL = @"";
+static NSString *const kCheckOutIPURL = @"http://vl7.net/ip";
+static NSString *const kCheckOutIPURL2 = @"http://ipinfo.io/ip";
+static NSString *const kCheckOutIPURL3 = @"http://ifconfig.me/ip";
 
 @interface LDNetDiagnoService () <LDNetPingDelegate, LDNetTraceRouteDelegate,
                                   LDNetConnectDelegate> {
@@ -33,9 +36,11 @@ static NSString *const kCheckOutIPURL = @"";
 
     NETWORK_TYPE _curNetType;
     NSString *_localIp;
+    NSString *_outIp;
     NSString *_gatewayIp;
     NSArray *_dnsServers;
     NSArray *_hostAddress;
+
 
     NSMutableString *_logInfo;  //记录网络诊断log日志
     BOOL _isRunning;
@@ -91,18 +96,25 @@ static NSString *const kCheckOutIPURL = @"";
 - (void)startNetDiagnosis
 {
     if (!_dormain || [_dormain isEqualToString:@""]) return;
-
     _isRunning = YES;
     [_logInfo setString:@""];
-    [self recordStepInfo:@"\n-----------------------\n开始诊断..."];
+    __weak __typeof(self)weakSelf = self;
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT,0), ^{
+        [weakSelf runNetDiagnosis];
+    });
+}
+
+-(void)runNetDiagnosis{
+    //启动 runloop
+    [NSRunLoop currentRunLoop];
+    [self recordStepInfo:@"\n%@\n",TRLocalizedString(@"RTNetDiagnosisStart")];//开始网络诊断.
     [self recordCurrentAppVersion];
     [self recordLocalNetEnvironment];
-
     //未联网不进行任何检测
     if (_curNetType == 0) {
         _isRunning = NO;
-        [self recordStepInfo:@"\n当前主机未联网，请检查网络！"];
-        [self recordStepInfo:@"\n网络诊断结束\n"];
+        [self recordStepInfo:@"\n%@",TRLocalizedString(@"RTNetDiagnosisNoNetwork")];//当前主机未联网，请检查网络！
+        [self recordStepInfo:@"\n%@\n",TRLocalizedString(@"RTNetDiagnosisFinish")];//网络诊断结束
         if (self.delegate && [self.delegate respondsToSelector:@selector(netDiagnosisDidEnd:)]) {
             [self.delegate netDiagnosisDidEnd:_logInfo];
         }
@@ -110,13 +122,15 @@ static NSString *const kCheckOutIPURL = @"";
     }
 
     if (_isRunning) {
-//        [self recordOutIPInfo];
+        [self recordStepInfo:@"\n%@",TRLocalizedString(@"RTNetDiagnosisBeginOutIpInfo")];
+        [self recordOutIPInfo];
+        [self recordStepInfo:@"%@",TRLocalizedString(@"RTNetDiagnosisFinishOutIpInfo")];
     }
 
+    // connect诊断，同步过程, 如果TCP无法连接，检查本地网络环境
     if (_isRunning) {
-        // connect诊断，同步过程, 如果TCP无法连接，检查本地网络环境
         _connectSuccess = NO;
-        [self recordStepInfo:@"\n开始TCP连接测试..."];
+        [self recordStepInfo:@"\n%@",TRLocalizedString(@"RTNetDiagnosisBeginTcpConnect")];
         if ([_hostAddress count] > 0) {
             _netConnect = [[LDNetConnect alloc] init];
             _netConnect.delegate = self;
@@ -124,30 +138,44 @@ static NSString *const kCheckOutIPURL = @"";
                 [_netConnect runWithHostAddress:[_hostAddress objectAtIndex:i] port:80];
             }
         } else {
-            [self recordStepInfo:@"DNS解析失败，主机地址不可达"];
+            [self recordStepInfo:@"%@",TRLocalizedString(@"RTNetDiagnosisDNSresolveError")];
         }
-        if (_isRunning) {
-            [self pingDialogsis:!_connectSuccess];
-        }
+        [self recordStepInfo:@"%@\n",TRLocalizedString(@"RTNetDiagnosisFinishTcpConnect")];
     }
 
+    // ping 外网地址, ping 目标地址
+    if (_isRunning) {
+        [self pingDialogsis:!_connectSuccess];
+    }
 
     if (_isRunning) {
         //开始诊断traceRoute
-        [self recordStepInfo:@"\n开始traceroute..."];
         _traceRouter =  [[LDNetTraceRoute alloc] initWithMaxTTL:TRACEROUTE_MAX_TTL
-                                                       timeout:TRACEROUTE_TIMEOUT
-                                                   maxAttempts:TRACEROUTE_ATTEMPTS
-                                                          port:TRACEROUTE_PORT];
-        __weak LDNetTraceRoute *traceRoute = _traceRouter;
+                                                        timeout:TRACEROUTE_TIMEOUT
+                                                    maxAttempts:TRACEROUTE_ATTEMPTS
+                                                           port:TRACEROUTE_PORT];
         _traceRouter.delegate = self;
         if (_traceRouter) {
-            NSString* domain = _dormain;
-            dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
-                [traceRoute doTraceRoute:domain];
-            });
+            [self recordStepInfo:@"\n%@",TRLocalizedString(@"RTNetDiagnosisBeginUDPTraceroute")];
+            [_traceRouter doTraceRoute:_dormain];
+            [self recordStepInfo:@"%@",TRLocalizedString(@"RTNetDiagnosisFinishUDPTraceroute")];
         }
     }
+
+    if(_isRunning){
+        [self recordStepInfo:@"\n%@",TRLocalizedString(@"RTNetDiagnosisBeginICMPTraceroute")];
+        __weak __typeof(self)weakSelf = self;
+        _trTraceroute = [TRTraceroute startTracerouteWithHost:[_hostAddress firstObject]
+                                                        queue:nil
+                                                 stepCallback:^(TRTracerouteRecord *record) {
+                                                     [weakSelf recordStepInfo:[record description]];
+                                                 } finish:^(NSArray<TRTracerouteRecord *> *results, BOOL succeed) {
+                                                     [weakSelf recordStepInfo:@"%@",TRLocalizedString(succeed?@"RTNetDiagnosisICMPTracerouteSuccess":@"RTNetDiagnosisICMPTracerouteFail")];
+                                                 }];
+        [self recordStepInfo:@"%@",TRLocalizedString(@"RTNetDiagnosisFinishICMPTraceroute")];
+    }
+    [self recordStepInfo:@"\n%@\n",TRLocalizedString(@"RTNetDiagnosisFinish")];
+    [self onFinishAll];
 }
 
 
@@ -197,28 +225,28 @@ static NSString *const kCheckOutIPURL = @"";
 - (void)recordCurrentAppVersion
 {
     //输出应用版本信息和用户ID
-    [self recordStepInfo:[NSString stringWithFormat:@"应用code: %@", _appCode]];
+    [self recordStepInfo:[NSString stringWithFormat:@"%@: %@",TRLocalizedString(@"RTNetDiagnosisAppCode"), _appCode]];
     NSDictionary *dicBundle = [[NSBundle mainBundle] infoDictionary];
 
     if (!_appName || [_appName isEqualToString:@""]) {
         _appName = [dicBundle objectForKey:@"CFBundleDisplayName"];
     }
-    [self recordStepInfo:[NSString stringWithFormat:@"应用名称: %@", _appName]];
+    [self recordStepInfo:[NSString stringWithFormat:@"%@: %@",TRLocalizedString(@"RTNetDiagnosisAppDisplayName"), _appName]];
 
     if (!_appVersion || [_appVersion isEqualToString:@""]) {
         _appVersion = [dicBundle objectForKey:@"CFBundleShortVersionString"];
     }
-    [self recordStepInfo:[NSString stringWithFormat:@"应用版本: %@", _appVersion]];
-    [self recordStepInfo:[NSString stringWithFormat:@"用户id: %@", _UID]];
+    [self recordStepInfo:[NSString stringWithFormat:@"%@: %@",TRLocalizedString(@"RTNetDiagnosisAppVersion"), _appVersion]];
+    [self recordStepInfo:[NSString stringWithFormat:@"%@: %@",TRLocalizedString(@"RTNetDiagnosisUID"), _UID]];
 
     //输出机器信息
     UIDevice *device = [UIDevice currentDevice];
-    [self recordStepInfo:[NSString stringWithFormat:@"机器类型: %@", [device systemName]]];
-    [self recordStepInfo:[NSString stringWithFormat:@"系统版本: %@", [device systemVersion]]];
+    [self recordStepInfo:[NSString stringWithFormat:@"%@: %@", TRLocalizedString(@"RTNetDiagnosisDeviceName"),[device systemName]]];
+    [self recordStepInfo:[NSString stringWithFormat:@"%@: %@",TRLocalizedString(@"RTNetDiagnosisSystemVersion"), [device systemVersion]]];
     if (!_deviceID || [_deviceID isEqualToString:@""]) {
         _deviceID = [self uniqueAppInstanceIdentifier];
     }
-    [self recordStepInfo:[NSString stringWithFormat:@"机器ID: %@", _deviceID]];
+    [self recordStepInfo:[NSString stringWithFormat:@"%@: %@", TRLocalizedString(@"RTNetDiagnosisMachineID"),_deviceID]];
 
 
     //运营商信息
@@ -238,10 +266,10 @@ static NSString *const kCheckOutIPURL = @"";
         }
     }
 
-    [self recordStepInfo:[NSString stringWithFormat:@"运营商: %@", _carrierName]];
-    [self recordStepInfo:[NSString stringWithFormat:@"ISOCountryCode: %@", _ISOCountryCode]];
-    [self recordStepInfo:[NSString stringWithFormat:@"MobileCountryCode: %@", _MobileCountryCode]];
-    [self recordStepInfo:[NSString stringWithFormat:@"MobileNetworkCode: %@", _MobileNetCode]];
+    [self recordStepInfo:[NSString stringWithFormat:@"%@: %@", TRLocalizedString(@"RTNetDiagnosisCarrierName") ,_carrierName]];
+    [self recordStepInfo:[NSString stringWithFormat:@"%@: %@", TRLocalizedString(@"RTNetDiagnosisISOCountryCode"), _ISOCountryCode]];
+    [self recordStepInfo:[NSString stringWithFormat:@"%@: %@", TRLocalizedString(@"RTNetDiagnosisMobileCountryCode"), _MobileCountryCode]];
+    [self recordStepInfo:[NSString stringWithFormat:@"%@: %@", TRLocalizedString(@"RTNetDiagnosisMobileNetworkCode"), _MobileNetCode]];
 }
 
 
@@ -250,50 +278,44 @@ static NSString *const kCheckOutIPURL = @"";
  */
 - (void)recordLocalNetEnvironment
 {
-    [self recordStepInfo:[NSString stringWithFormat:@"\n\n诊断域名 %@...\n", _dormain]];
+    [self recordStepInfo:[NSString stringWithFormat:@"\n%@:%@\n",TRLocalizedString(@"RTNetDiagnosisDiagnosisDomainName"),_dormain]];
     //判断是否联网以及获取网络类型
     NSArray *typeArr = [NSArray arrayWithObjects:@"2G", @"3G", @"4G", @"5G", @"wifi", nil];
     _curNetType = [LDNetGetAddress getNetworkTypeFromStatusBar];
     if (_curNetType == 0) {
-        [self recordStepInfo:[NSString stringWithFormat:@"当前是否联网: 未联网"]];
+        [self recordStepInfo:[NSString stringWithFormat:@"%@:%@",TRLocalizedString(@"RTNetDiagnosisNetworkStatus"),TRLocalizedString(@"RTNetDiagnosisNetworkStatusUnconnected")]];
     } else {
-        [self recordStepInfo:[NSString stringWithFormat:@"当前是否联网: 已联网"]];
+        [self recordStepInfo:[NSString stringWithFormat:@"%@: %@",TRLocalizedString(@"RTNetDiagnosisNetworkStatus"),TRLocalizedString(@"RTNetDiagnosisNetworkStatusConnected")]];
         if (_curNetType > 0 && _curNetType < 6) {
-            [self
-                recordStepInfo:[NSString stringWithFormat:@"当前联网类型: %@",
-                                                          [typeArr objectAtIndex:_curNetType - 1]]];
+            [self recordStepInfo:[NSString stringWithFormat:@"%@: %@",TRLocalizedString(@"RTNetDiagnosisNetworkType"),[typeArr objectAtIndex:_curNetType - 1]]];
         }
     }
 
     //本地ip信息
     _localIp = [LDNetGetAddress deviceIPAdress];
-    [self recordStepInfo:[NSString stringWithFormat:@"当前本机IP: %@", _localIp]];
+    [self recordStepInfo:[NSString stringWithFormat:@"%@: %@",TRLocalizedString(@"RTNetDiagnosisLocalIP"), _localIp]];
 
     if (_curNetType == NETWORK_TYPE_WIFI) {
         _gatewayIp = [LDNetGetAddress getGatewayIPAddress];
-        [self recordStepInfo:[NSString stringWithFormat:@"本地网关: %@", _gatewayIp]];
+        [self recordStepInfo:[NSString stringWithFormat:@"%@: %@",TRLocalizedString(@"RTNetDiagnosisGatewary"), _gatewayIp]];
     } else {
         _gatewayIp = @"";
     }
 
 
     _dnsServers = [NSArray arrayWithArray:[LDNetGetAddress outPutDNSServers]];
-    [self recordStepInfo:[NSString stringWithFormat:@"本地DNS: %@",
-                                                    [_dnsServers componentsJoinedByString:@", "]]];
+    [self recordStepInfo:[NSString stringWithFormat:@"%@:%@",TRLocalizedString(@"RTNetDiagnosisLocalDNS"),[_dnsServers componentsJoinedByString:@", "]]];
 
-    [self recordStepInfo:[NSString stringWithFormat:@"远端域名: %@", _dormain]];
+    [self recordStepInfo:[NSString stringWithFormat:@"%@: %@",TRLocalizedString(@"RTNetDiagnosisRemoteDomain"),_dormain]];
 
     // host地址IP列表
     long time_start = [LDNetTimer getMicroSeconds];
     _hostAddress = [NSArray arrayWithArray:[LDNetGetAddress getDNSsWithDormain:_dormain]];
     long time_duration = [LDNetTimer computeDurationSince:time_start] / 1000;
     if ([_hostAddress count] == 0) {
-        [self recordStepInfo:[NSString stringWithFormat:@"DNS解析结果: 解析失败"]];
+        [self recordStepInfo:[NSString stringWithFormat:@"%@:%@",TRLocalizedString(@"RTNetDiagnosisDNSresolveResult"),TRLocalizedString(@"RTNetDiagnosisFail")]];
     } else {
-        [self
-            recordStepInfo:[NSString stringWithFormat:@"DNS解析结果: %@ (%ldms)",
-                                                      [_hostAddress componentsJoinedByString:@", "],
-                                                      time_duration]];
+        [self recordStepInfo:[NSString stringWithFormat:@"%@: %@ (%ldms)",TRLocalizedString(@"RTNetDiagnosisDNSresolveResult"),[_hostAddress componentsJoinedByString:@", "],time_duration]];
     }
 }
 
@@ -302,25 +324,41 @@ static NSString *const kCheckOutIPURL = @"";
  */
 - (void)recordOutIPInfo
 {
-    [self recordStepInfo:@"\n开始获取运营商信息..."];
     // 初始化请求, 这里是变长的, 方便扩展
-    NSMutableURLRequest *request =
-        [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:kCheckOutIPURL]
+    NSArray*servers = @[kCheckOutIPURL,kCheckOutIPURL2,kCheckOutIPURL3];
+    NSString*outip = nil;
+    for(NSString*server in servers){
+        NSMutableURLRequest *request =
+        [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:server]
                                      cachePolicy:NSURLRequestUseProtocolCachePolicy
                                  timeoutInterval:10];
-
-    // 发送同步请求, data就是返回的数据
-    NSError *error = nil;
-    NSData *data =
-        [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:&error];
-    if (error != nil) {
-        NSLog(@"error = %@", error);
-        [self recordStepInfo:@"\n获取超时"];
-        return;
+        // 发送同步请求, data就是返回的数据
+        __block NSData *responseData = nil;
+        __block NSError *responseError = nil;
+        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0); //创建信号量
+        NSURLSession *session = [NSURLSession sharedSession];
+        NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+            responseData = data;
+            responseError = error;
+            dispatch_semaphore_signal(semaphore);   //发送信号
+        }];
+        [task resume];
+        dispatch_semaphore_wait(semaphore,DISPATCH_TIME_FOREVER);  //等待
+        if (responseError != nil) {
+            NSLog(@"error = %@", responseError);
+            continue;
+        }
+        NSString *response = [[NSString alloc] initWithData:responseData encoding:0x80000632];
+        outip = [response stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        [self recordStepInfo:outip];
+        break;
     }
-    NSString *response = [[NSString alloc] initWithData:data encoding:0x80000632];
-    NSLog(@"response: %@", response);
-    [self recordStepInfo:response];
+    if(outip==nil){
+        [self recordStepInfo:@"%@:%@",TRLocalizedString(@"RTNetDiagnosisGetOutIpResult"),TRLocalizedString(@"RTNetDiagnosisFail")];
+    }else{
+        _outIp = outip;
+        [self recordStepInfo:@"%@%@ :%@",TRLocalizedString(@"RTNetDiagnosisGetOutIpResult"),TRLocalizedString(@"RTNetDiagnosisSuccess"),outip];
+    }
 }
 
 
@@ -334,32 +372,32 @@ static NSString *const kCheckOutIPURL = @"";
     NSMutableArray *pingInfo = [[NSMutableArray alloc] init];
     if (pingLocal) {
         [pingAdd addObject:@"127.0.0.1"];
-        [pingInfo addObject:@"本机"];
+        [pingInfo addObject:TRLocalizedString(@"RTNetDiagnosisLocalhost")];
         [pingAdd addObject:_localIp];
-        [pingInfo addObject:@"本机IP"];
+        [pingInfo addObject:TRLocalizedString(@"RTNetDiagnosisLocalIP")];
         if (_gatewayIp && ![_gatewayIp isEqualToString:@""]) {
             [pingAdd addObject:_gatewayIp];
-            [pingInfo addObject:@"本地网关"];
+            [pingInfo addObject:TRLocalizedString(@"RTNetDiagnosisGatewary")];
         }
         if ([_dnsServers count] > 0) {
             [pingAdd addObject:[_dnsServers objectAtIndex:0]];
-            [pingInfo addObject:@"DNS服务器"];
+            [pingInfo addObject:TRLocalizedString(@"RTNetDiagnosisDNSServer")];
         }
     }
 
     //不管服务器解析DNS是否可达，均需要ping指定ip地址
     if([_localIp rangeOfString:@":"].location == NSNotFound){
         [pingAdd addObject:kPingOpenServerIP];
-        [pingInfo addObject:@"开放服务器"];
+        [pingInfo addObject:TRLocalizedString(@"RTNetDiagnosisAppleServer")];
         [pingAdd addObject:_dormain];
-        [pingInfo addObject:@"目标服务器"];
+        [pingInfo addObject:TRLocalizedString(@"RTNetDiagnosisTargetServer")];
     }
 
-    [self recordStepInfo:@"\n开始ping..."];
+    [self recordStepInfo:@"\n%@",TRLocalizedString(@"RTNetDiagnosisBeginPing")];
     _netPinger = [[LDNetPing alloc] init];
     _netPinger.delegate = self;
     for (int i = 0; i < [pingAdd count]; i++) {
-        [self recordStepInfo:[NSString stringWithFormat:@"ping: %@ %@ ...",
+        [self recordStepInfo:[NSString stringWithFormat:@"Ping: %@ : %@",
                                                         [pingInfo objectAtIndex:i],
                                                         [pingAdd objectAtIndex:i]]];
         if ([[pingAdd objectAtIndex:i] isEqualToString:kPingOpenServerIP]) {
@@ -368,6 +406,7 @@ static NSString *const kCheckOutIPURL = @"";
             [_netPinger runWithHostName:[pingAdd objectAtIndex:i] normalPing:YES];
         }
     }
+    [self recordStepInfo:@"%@",TRLocalizedString(@"RTNetDiagnosisFinishPing")];
 }
 
 
@@ -392,7 +431,7 @@ static NSString *const kCheckOutIPURL = @"";
 
 - (void)traceRouteDidEnd
 {
-    [self startTRTraceroute];
+//    [self startTRTraceroute];
 }
 
 -(void)onFinishAll{
@@ -403,27 +442,27 @@ static NSString *const kCheckOutIPURL = @"";
 }
 
 #pragma mark - onTRTraceroute
--(void)startTRTraceroute{
-    __weak __typeof(self)weakSelf = self;
-    [weakSelf stopTRTraceroute];
-    [weakSelf recordStepInfo:@"\n------------------------\n开始第二种 TraceRoute"];
-    _trTraceroute = [TRTraceroute startTracerouteWithHost:[_hostAddress firstObject]
-                                    queue:dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0)
-                             stepCallback:^(TRTracerouteRecord *record) {
-                                 [weakSelf recordStepInfo:[record description]];
-                             } finish:^(NSArray<TRTracerouteRecord *> *results, BOOL succeed) {
-                                 [weakSelf recordStepInfo:succeed?@"> Traceroute成功 <":@"> Traceroute失败 <"];
-                                 [weakSelf recordStepInfo:@"\n网络诊断结束\n"];
-                                 [weakSelf onFinishAll];
-                             }];
-}
-
--(void)stopTRTraceroute{
-    if(_trTraceroute){
-        [_trTraceroute stopTrace];
-    }
-    _trTraceroute = nil;
-}
+//-(void)startTRTraceroute{
+//    __weak __typeof(self)weakSelf = self;
+//    [weakSelf stopTRTraceroute];
+//    [weakSelf recordStepInfo:@"\n------------------------\n开始第二种 TraceRoute"];
+//    _trTraceroute = [TRTraceroute startTracerouteWithHost:[_hostAddress firstObject]
+//                                    queue:dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0)
+//                             stepCallback:^(TRTracerouteRecord *record) {
+//                                 [weakSelf recordStepInfo:[record description]];
+//                             } finish:^(NSArray<TRTracerouteRecord *> *results, BOOL succeed) {
+//                                 [weakSelf recordStepInfo:succeed?@"> Traceroute成功 <":@"> Traceroute失败 <"];
+//                                 [weakSelf recordStepInfo:@"\n网络诊断结束\n"];
+//                                 [weakSelf onFinishAll];
+//                             }];
+//}
+//
+//-(void)stopTRTraceroute{
+//    if(_trTraceroute){
+//        [_trTraceroute stopTrace];
+//    }
+//    _trTraceroute = nil;
+//}
 
 
 #pragma mark - connectDelegate
@@ -442,15 +481,24 @@ static NSString *const kCheckOutIPURL = @"";
 
 
 #pragma mark - common method
+- (void)recordStepInfo:(NSString *)stepInfo ,...{
+    if(stepInfo!=nil){
+        va_list arg_list;
+        va_start(arg_list, stepInfo);
+        NSString*result = [[NSString alloc]initWithFormat:stepInfo arguments:arg_list];
+        va_end(arg_list);
+        [self _recordStepInfo:[result copy]];
+    }
+}
+
 /**
  * 如果调用者实现了stepInfo接口，输出信息
  */
-- (void)recordStepInfo:(NSString *)stepInfo
+- (void)_recordStepInfo:(NSString *)stepInfo
 {
     if (stepInfo == nil) stepInfo = @"";
     [_logInfo appendString:stepInfo];
     [_logInfo appendString:@"\n"];
-
     if (self.delegate && [self.delegate respondsToSelector:@selector(netDiagnosisStepInfo:)]) {
         [self.delegate netDiagnosisStepInfo:[NSString stringWithFormat:@"%@\n", stepInfo]];
     }

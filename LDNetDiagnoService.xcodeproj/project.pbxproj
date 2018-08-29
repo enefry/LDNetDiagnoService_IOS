@@ -37,6 +37,9 @@
 		9BCB8C0E213690D700B658F0 /* TRTracerouteCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = 9BCB8C08213690D700B658F0 /* TRTracerouteCommon.h */; };
 		9BCB8C0F213690D700B658F0 /* TRTracerouteRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BCB8C09213690D700B658F0 /* TRTracerouteRecord.m */; };
 		9BCB8C10213690D700B658F0 /* TRTraceroute.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BCB8C0A213690D700B658F0 /* TRTraceroute.m */; };
+		9BCB8C142136C77900B658F0 /* LDNetDiagnoService.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9BCB8C162136C77900B658F0 /* LDNetDiagnoService.strings */; };
+		9BCB8C1A2136E21300B658F0 /* TRAPAppleReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 9BCB8C182136E21200B658F0 /* TRAPAppleReachability.h */; };
+		9BCB8C1B2136E21300B658F0 /* TRAPAppleReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BCB8C192136E21200B658F0 /* TRAPAppleReachability.m */; };
 		B0535F411CF2E9F100A1E7D6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 629AF6E91A0125E5001CBB3E /* AppDelegate.m */; };
 		B0535F421CF2E9F100A1E7D6 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 629AF6EC1A0125E5001CBB3E /* ViewController.m */; };
 		B0535F431CF2E9F100A1E7D6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 629AF6E61A0125E5001CBB3E /* main.m */; };
@@ -129,6 +132,10 @@
 		9BCB8C08213690D700B658F0 /* TRTracerouteCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRTracerouteCommon.h; sourceTree = "<group>"; };
 		9BCB8C09213690D700B658F0 /* TRTracerouteRecord.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TRTracerouteRecord.m; sourceTree = "<group>"; };
 		9BCB8C0A213690D700B658F0 /* TRTraceroute.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TRTraceroute.m; sourceTree = "<group>"; };
+		9BCB8C152136C77900B658F0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/LDNetDiagnoService.strings; sourceTree = "<group>"; };
+		9BCB8C172136C79E00B658F0 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LDNetDiagnoService.strings"; sourceTree = "<group>"; };
+		9BCB8C182136E21200B658F0 /* TRAPAppleReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRAPAppleReachability.h; sourceTree = "<group>"; };
+		9BCB8C192136E21200B658F0 /* TRAPAppleReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TRAPAppleReachability.m; sourceTree = "<group>"; };
 		B0535F8C1CF2F07800A1E7D6 /* libLDNetDiagnoService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libLDNetDiagnoService.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -255,6 +262,7 @@
 		629AF70A1A012630001CBB3E /* LDNetDiagnoService */ = {
 			isa = PBXGroup;
 			children = (
+				9BCB8C112136C75200B658F0 /* Resources */,
 				9BCB8C04213690D700B658F0 /* TRTraceroute */,
 				629AF70B1A012630001CBB3E /* LDNetDiagnoService.h */,
 				629AF70C1A012630001CBB3E /* LDNetDiagnoService.m */,
@@ -271,6 +279,7 @@
 				507D0B181B71F08300C022DD /* LDNetGetAddress.h */,
 				507D0B191B71F08300C022DD /* LDNetGetAddress.m */,
 				620760621B74C27C00761E87 /* Route.h */,
+				9BCB8C1C2136E21D00B658F0 /* AppleReachability */,
 			);
 			path = LDNetDiagnoService;
 			sourceTree = "<group>";
@@ -296,6 +305,23 @@
 			path = TRTraceroute;
 			sourceTree = "<group>";
 		};
+		9BCB8C112136C75200B658F0 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				9BCB8C162136C77900B658F0 /* LDNetDiagnoService.strings */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		9BCB8C1C2136E21D00B658F0 /* AppleReachability */ = {
+			isa = PBXGroup;
+			children = (
+				9BCB8C182136E21200B658F0 /* TRAPAppleReachability.h */,
+				9BCB8C192136E21200B658F0 /* TRAPAppleReachability.m */,
+			);
+			path = AppleReachability;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -306,6 +332,7 @@
 				2942ACAF1CEC3CD40028B3C7 /* LDNetDiagnoService.h in Headers */,
 				9BCB8C0C213690D700B658F0 /* TRTracerouteRecord.h in Headers */,
 				B0535F8D1CF2F07800A1E7D6 /* libLDNetDiagnoService.h in Headers */,
+				9BCB8C1A2136E21300B658F0 /* TRAPAppleReachability.h in Headers */,
 				9BCB8C0E213690D700B658F0 /* TRTracerouteCommon.h in Headers */,
 				2942ACB01CEC3CD40028B3C7 /* LDNetPing.h in Headers */,
 				2942ACB11CEC3CD40028B3C7 /* LDNetTimer.h in Headers */,
@@ -430,6 +457,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
 			);
 			mainGroup = 629AF6D81A0125E5001CBB3E;
 			productRefGroup = 629AF6E21A0125E5001CBB3E /* Products */;
@@ -463,6 +491,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9BCB8C142136C77900B658F0 /* LDNetDiagnoService.strings in Resources */,
 				623DA6B61A0723C4002351F7 /* LDNetDiagnoService.podspec in Resources */,
 				629AF6F51A0125E5001CBB3E /* LaunchScreen.xib in Resources */,
 				629AF6F21A0125E5001CBB3E /* Images.xcassets in Resources */,
@@ -489,6 +518,7 @@
 				2942ACAA1CEC3CC70028B3C7 /* LDNetTimer.m in Sources */,
 				2942ACAB1CEC3CC70028B3C7 /* LDNetTraceRoute.m in Sources */,
 				9BCB8C10213690D700B658F0 /* TRTraceroute.m in Sources */,
+				9BCB8C1B2136E21300B658F0 /* TRAPAppleReachability.m in Sources */,
 				9BCB8C0B213690D700B658F0 /* TRTracerouteCommon.m in Sources */,
 				2942ACAC1CEC3CC70028B3C7 /* LDNetConnect.m in Sources */,
 				2942ACAD1CEC3CC70028B3C7 /* LDSimplePing.m in Sources */,
@@ -554,6 +584,15 @@
 				629AF6F41A0125E5001CBB3E /* Base */,
 			);
 			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+		9BCB8C162136C77900B658F0 /* LDNetDiagnoService.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9BCB8C152136C77900B658F0 /* en */,
+				9BCB8C172136C79E00B658F0 /* zh-Hans */,
+			);
+			name = LDNetDiagnoService.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -651,6 +690,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -695,6 +735,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;

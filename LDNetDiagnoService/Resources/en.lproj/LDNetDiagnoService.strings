@@ -1,0 +1,50 @@
+/*
+ LDNetDiagnoService.strings
+ LDNetDiagnoService
+ Created by renwei.chen on 2018/8/29.
+ Copyright © 2018年 . All rights reserved.
+ */
+"RTNetDiagnosisStart"="Start Diagnosis";
+"RTNetDiagnosisNoNetwork"="No Network,Please check！";
+"RTNetDiagnosisFinish"="Finish Diagnosis";
+"RTNetDiagnosisSuccess"=" Success";
+"RTNetDiagnosisFail"=" Fail";
+"RTNetDiagnosisBeginTcpConnect"="Start TCP Connect Test.";
+"RTNetDiagnosisFinishTcpConnect"="Finish TCP Connect Test";
+"RTNetDiagnosisDNSresolveError"="DNS Resolve Fail, Domain Unreacable";
+"RTNetDiagnosisBeginUDPTraceroute"="Begin UDP Traceroute";
+"RTNetDiagnosisFinishUDPTraceroute"="Finish UDP Traceroute";
+"RTNetDiagnosisBeginICMPTraceroute"="Begin ICMP Traceroute";
+"RTNetDiagnosisFinishICMPTraceroute"="Finish ICMP Traceroute";
+"RTNetDiagnosisICMPTracerouteSuccess"="Traceroute Success";
+"RTNetDiagnosisICMPTracerouteFail"="Traceroute Fail";
+"RTNetDiagnosisBeginOutIpInfo"="Begin Out IP";
+"RTNetDiagnosisFinishOutIpInfo"="Finish Out IP";
+"RTNetDiagnosisLocalhost"="LocalHost";
+"RTNetDiagnosisLocalIP"="Local IP";
+"RTNetDiagnosisGatewary"="Local Gateway";
+"RTNetDiagnosisDNSServer"="DNS Server";
+"RTNetDiagnosisAppleServer"="Apple Server";
+"RTNetDiagnosisTargetServer"="Target Server";
+"RTNetDiagnosisBeginPing"="Begin Ping";
+"RTNetDiagnosisFinishPing"="Finish Ping";
+"RTNetDiagnosisAppCode"="AppCode";
+"RTNetDiagnosisAppDisplayName"="AppName";
+"RTNetDiagnosisAppVersion"="AppVersion";
+"RTNetDiagnosisUID"="UID";
+"RTNetDiagnosisDeviceName"="Machine Name";
+"RTNetDiagnosisSystemVersion"="System Version";
+"RTNetDiagnosisMachineID"="Machine ID";
+"RTNetDiagnosisCarrierName"="Carrier Name";
+"RTNetDiagnosisISOCountryCode"="ISOCountryCode";
+"RTNetDiagnosisMobileCountryCode"="MobileCountryCode";
+"RTNetDiagnosisMobileNetworkCode"="MobileNetworkCode";
+"RTNetDiagnosisDiagnosisDomainName"="Diagnosis Domain";
+"RTNetDiagnosisNetworkStatus"="Is Connected";
+"RTNetDiagnosisNetworkStatusConnected"="YES";
+"RTNetDiagnosisNetworkStatusUnconnected"="NO";
+"RTNetDiagnosisNetworkType"="Network type";
+"RTNetDiagnosisLocalDNS"="Local DNS";
+"RTNetDiagnosisRemoteDomain"="Remote Domain";
+"RTNetDiagnosisDNSresolveResult"="DNS Resolve Result";
+"RTNetDiagnosisGetOutIpResult"="Out IP";

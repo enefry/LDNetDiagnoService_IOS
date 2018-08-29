@@ -1,0 +1,51 @@
+/*
+  LDNetDiagnoService.strings
+  LDNetDiagnoService
+  Created by renwei.chen on 2018/8/29.
+  Copyright © 2018年 . All rights reserved.
+*/
+
+"RTNetDiagnosisStart"="开始网络诊断.";
+"RTNetDiagnosisNoNetwork"="当前主机未联网，请检查网络！";
+"RTNetDiagnosisFinish"="网络诊断结束";
+"RTNetDiagnosisSuccess"="成功";
+"RTNetDiagnosisFail"="失败";
+"RTNetDiagnosisBeginTcpConnect"="+++> 开始 TCP 连接测试.";
+"RTNetDiagnosisFinishTcpConnect"="---> TCP 链接测试 结束";
+"RTNetDiagnosisDNSresolveError"="DNS解析失败，主机地址不可达";
+"RTNetDiagnosisBeginUDPTraceroute"="+++> 开始 UDP 方式 Traceroute";
+"RTNetDiagnosisFinishUDPTraceroute"="---> UDP 方式 Traceroute 结束";
+"RTNetDiagnosisBeginICMPTraceroute"="+++> 开始 ICMP 方式 Traceroute";
+"RTNetDiagnosisFinishICMPTraceroute"="---> ICMP 方式 Traceroute 结束";
+"RTNetDiagnosisBeginOutIpInfo"="+++> 开始获取外网 IP";
+"RTNetDiagnosisFinishOutIpInfo"="---> 获取外网 IP 结束";
+"RTNetDiagnosisBeginPing"="+++> 开始 Ping";
+"RTNetDiagnosisFinishPing"="---> Ping 完成";
+"RTNetDiagnosisICMPTracerouteSuccess"="Traceroute成功 ";
+"RTNetDiagnosisICMPTracerouteFail"="Traceroute失败 ";
+"RTNetDiagnosisLocalhost"="本机";
+"RTNetDiagnosisLocalIP"="本机 IP";
+"RTNetDiagnosisGatewary"="本地网关";
+"RTNetDiagnosisDNSServer"="DNS服务器";
+"RTNetDiagnosisAppleServer"="苹果服务器";
+"RTNetDiagnosisTargetServer"="目标服务器";
+"RTNetDiagnosisAppCode"="应用code";
+"RTNetDiagnosisAppDisplayName"="应用名称";
+"RTNetDiagnosisAppVersion"="应用版本";
+"RTNetDiagnosisUID"="用户id";
+"RTNetDiagnosisDeviceName"="机器类型";
+"RTNetDiagnosisSystemVersion"="系统版本";
+"RTNetDiagnosisMachineID"="机器ID";
+"RTNetDiagnosisCarrierName"="运营商";
+"RTNetDiagnosisISOCountryCode"="ISOCountryCode";
+"RTNetDiagnosisMobileCountryCode"="MobileCountryCode";
+"RTNetDiagnosisMobileNetworkCode"="MobileNetworkCode";
+"RTNetDiagnosisDiagnosisDomainName"="诊断域名";
+"RTNetDiagnosisNetworkStatus"="当前是否联网";
+"RTNetDiagnosisNetworkStatusConnected"="已联网";
+"RTNetDiagnosisNetworkStatusUnconnected"="未联网";
+"RTNetDiagnosisNetworkType"="当前联网类型";
+"RTNetDiagnosisLocalDNS"="本地DNS";
+"RTNetDiagnosisRemoteDomain"="远端域名";
+"RTNetDiagnosisDNSresolveResult"="DNS解析结果";
+"RTNetDiagnosisGetOutIpResult"="获取外网 IP";

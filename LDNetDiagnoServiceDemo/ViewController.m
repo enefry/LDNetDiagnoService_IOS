@@ -57,7 +57,7 @@
         [[UITextField alloc] initWithFrame:CGRectMake(130.0f, 79.0f, 180.0f, 50.0f)];
     _txtfield_dormain.delegate = self;
     _txtfield_dormain.returnKeyType = UIReturnKeyDone;
-    _txtfield_dormain.text = @"www.google.com";
+    _txtfield_dormain.text = @"www.apple.com";
     [self.view addSubview:_txtfield_dormain];
 
 
@@ -136,12 +136,19 @@
 - (void)netDiagnosisStepInfo:(NSString *)stepInfo
 {
     NSLog(@"%@", stepInfo);
-    _logInfo = [_logInfo stringByAppendingString:stepInfo];
     dispatch_async(dispatch_get_main_queue(), ^{
-        _txtView_log.text = _logInfo;
+        _logInfo = [_logInfo stringByAppendingString:stepInfo];
+        NSString*text = [_logInfo copy];
+        _txtView_log.text = text;
+        [self performSelectorOnMainThread:@selector(scrollToBottom) withObject:nil  waitUntilDone:NO];
     });
 }
 
+-(void)scrollToBottom{
+    if(_txtView_log.text.length>0){
+        [_txtView_log scrollRangeToVisible:NSMakeRange(_txtView_log.text.length-1, 1)];
+    }
+}
 
 - (void)netDiagnosisDidEnd:(NSString *)allLogInfo;
 {
