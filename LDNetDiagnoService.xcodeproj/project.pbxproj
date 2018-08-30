@@ -25,7 +25,6 @@
 		2942ACB41CEC3CD40028B3C7 /* LDSimplePing.h in Headers */ = {isa = PBXBuildFile; fileRef = 629AF7131A012630001CBB3E /* LDSimplePing.h */; };
 		2942ACB51CEC3CD40028B3C7 /* LDNetGetAddress.h in Headers */ = {isa = PBXBuildFile; fileRef = 507D0B181B71F08300C022DD /* LDNetGetAddress.h */; };
 		2942ACB61CEC3CD40028B3C7 /* Route.h in Headers */ = {isa = PBXBuildFile; fileRef = 620760621B74C27C00761E87 /* Route.h */; };
-		623DA6B61A0723C4002351F7 /* LDNetDiagnoService.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 623DA6B51A0723C4002351F7 /* LDNetDiagnoService.podspec */; };
 		629AF6F21A0125E5001CBB3E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 629AF6F11A0125E5001CBB3E /* Images.xcassets */; };
 		629AF6F51A0125E5001CBB3E /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 629AF6F31A0125E5001CBB3E /* LaunchScreen.xib */; };
 		629AF7011A0125E5001CBB3E /* LDNetDiagnoServiceDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 629AF7001A0125E5001CBB3E /* LDNetDiagnoServiceDemoTests.m */; };
@@ -101,7 +100,6 @@
 		507D0B1B1B71FE1900C022DD /* LDNetConnect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDNetConnect.h; sourceTree = "<group>"; };
 		507D0B1C1B71FE1900C022DD /* LDNetConnect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDNetConnect.m; sourceTree = "<group>"; };
 		620760621B74C27C00761E87 /* Route.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Route.h; sourceTree = "<group>"; };
-		623DA6B51A0723C4002351F7 /* LDNetDiagnoService.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LDNetDiagnoService.podspec; sourceTree = "<group>"; };
 		629AF6E11A0125E5001CBB3E /* LDNetDiagnoServiceDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LDNetDiagnoServiceDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		629AF6E51A0125E5001CBB3E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		629AF6E61A0125E5001CBB3E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -136,6 +134,7 @@
 		9BCB8C172136C79E00B658F0 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LDNetDiagnoService.strings"; sourceTree = "<group>"; };
 		9BCB8C182136E21200B658F0 /* TRAPAppleReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TRAPAppleReachability.h; sourceTree = "<group>"; };
 		9BCB8C192136E21200B658F0 /* TRAPAppleReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TRAPAppleReachability.m; sourceTree = "<group>"; };
+		9BCB8C1D213784BA00B658F0 /* LDNetDiagnoService.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = LDNetDiagnoService.podspec; sourceTree = "<group>"; };
 		B0535F8C1CF2F07800A1E7D6 /* libLDNetDiagnoService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libLDNetDiagnoService.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -196,7 +195,7 @@
 		629AF6D81A0125E5001CBB3E = {
 			isa = PBXGroup;
 			children = (
-				623DA6B51A0723C4002351F7 /* LDNetDiagnoService.podspec */,
+				9BCB8C1D213784BA00B658F0 /* LDNetDiagnoService.podspec */,
 				629AF71A1A012644001CBB3E /* CoreTelephony.framework */,
 				629AF70A1A012630001CBB3E /* LDNetDiagnoService */,
 				629AF6E31A0125E5001CBB3E /* LDNetDiagnoServiceDemo */,
@@ -492,7 +491,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				9BCB8C142136C77900B658F0 /* LDNetDiagnoService.strings in Resources */,
-				623DA6B61A0723C4002351F7 /* LDNetDiagnoService.podspec in Resources */,
 				629AF6F51A0125E5001CBB3E /* LaunchScreen.xib in Resources */,
 				629AF6F21A0125E5001CBB3E /* Images.xcassets in Resources */,
 			);

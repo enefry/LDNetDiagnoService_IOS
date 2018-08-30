@@ -132,7 +132,8 @@ static NSString *const kCheckOutIPURL3 = @"http://ifconfig.me/ip";
         _connectSuccess = NO;
         [self recordStepInfo:@"\n%@",TRLocalizedString(@"RTNetDiagnosisBeginTcpConnect")];
         if ([_hostAddress count] > 0) {
-            _netConnect = [[LDNetConnect alloc] init];
+            LDNetConnect*netConnect = [[LDNetConnect alloc] init];
+            _netConnect = netConnect;
             _netConnect.delegate = self;
             for (int i = 0; i < [_hostAddress count]; i++) {
                 [_netConnect runWithHostAddress:[_hostAddress objectAtIndex:i] port:80];
@@ -150,10 +151,11 @@ static NSString *const kCheckOutIPURL3 = @"http://ifconfig.me/ip";
 
     if (_isRunning) {
         //开始诊断traceRoute
-        _traceRouter =  [[LDNetTraceRoute alloc] initWithMaxTTL:TRACEROUTE_MAX_TTL
+        LDNetTraceRoute *traceRouter = [[LDNetTraceRoute alloc] initWithMaxTTL:TRACEROUTE_MAX_TTL
                                                         timeout:TRACEROUTE_TIMEOUT
                                                     maxAttempts:TRACEROUTE_ATTEMPTS
                                                            port:TRACEROUTE_PORT];
+        _traceRouter = traceRouter;
         _traceRouter.delegate = self;
         if (_traceRouter) {
             [self recordStepInfo:@"\n%@",TRLocalizedString(@"RTNetDiagnosisBeginUDPTraceroute")];
@@ -165,13 +167,15 @@ static NSString *const kCheckOutIPURL3 = @"http://ifconfig.me/ip";
     if(_isRunning){
         [self recordStepInfo:@"\n%@",TRLocalizedString(@"RTNetDiagnosisBeginICMPTraceroute")];
         __weak __typeof(self)weakSelf = self;
-        _trTraceroute = [TRTraceroute startTracerouteWithHost:[_hostAddress firstObject]
+        TRTraceroute *traceRouter =[TRTraceroute startTracerouteWithHost:[_hostAddress firstObject]
                                                         queue:nil
                                                  stepCallback:^(TRTracerouteRecord *record) {
                                                      [weakSelf recordStepInfo:[record description]];
                                                  } finish:^(NSArray<TRTracerouteRecord *> *results, BOOL succeed) {
                                                      [weakSelf recordStepInfo:@"%@",TRLocalizedString(succeed?@"RTNetDiagnosisICMPTracerouteSuccess":@"RTNetDiagnosisICMPTracerouteFail")];
                                                  }];
+
+        _trTraceroute = traceRouter;
         [self recordStepInfo:@"%@",TRLocalizedString(@"RTNetDiagnosisFinishICMPTraceroute")];
     }
     [self recordStepInfo:@"\n%@\n",TRLocalizedString(@"RTNetDiagnosisFinish")];
@@ -186,17 +190,20 @@ static NSString *const kCheckOutIPURL3 = @"http://ifconfig.me/ip";
 {
     if (_isRunning) {
         if (_netConnect != nil) {
+            _netConnect.delegate = nil;
             [_netConnect stopConnect];
             _netConnect = nil;
         }
 
         if (_netPinger != nil) {
             [_netPinger stopPing];
+            _netPinger.delegate = nil;
             _netPinger = nil;
         }
 
         if (_traceRouter != nil) {
             [_traceRouter stopTrace];
+            _traceRouter.delegate = nil;
             _traceRouter = nil;
         }
         if(_trTraceroute !=nil){
