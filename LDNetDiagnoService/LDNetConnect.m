@@ -62,7 +62,8 @@
     _startTime = [LDNetTimer getMicroSeconds];
     [self connect];
     do {
-        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+        //1分钟检测一次
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:60]];
     } while (_connectCount < MAXCOUNT_CONNECT);
 }
 
@@ -105,8 +106,8 @@
     CFSocketContext CTX = {0, (__bridge_retained void *)(self), NULL, NULL, NULL};
     _socket = CFSocketCreate(kCFAllocatorDefault, addressFamily, SOCK_STREAM, IPPROTO_TCP,
                              kCFSocketConnectCallBack, TCPServerConnectCallBack, &CTX);
-    
-    //执行连接
+
+    //执行连接,3s 超时.
     CFSocketConnectToAddress(_socket, (__bridge CFDataRef)addr, 3);
     CFRunLoopRef cfrl = CFRunLoopGetCurrent();  // 获取当前运行循环
     CFRunLoopSourceRef source =

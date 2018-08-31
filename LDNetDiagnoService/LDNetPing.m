@@ -64,7 +64,7 @@
     //在当前线程一直执行
     _sendCount = 1;
     do {
-        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:60]];
     } while (self.pinger != nil || _sendCount <= MAXCOUNT_PING);
 }
 
