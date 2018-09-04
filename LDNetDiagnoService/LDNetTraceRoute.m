@@ -170,7 +170,7 @@
                     if (fromAddr.sa_family == AF_INET) {
                         char display[INET_ADDRSTRLEN] = {0};
                         inet_ntop(AF_INET, &((struct sockaddr_in *)&fromAddr)->sin_addr.s_addr, display, sizeof(display));
-                        hostAddress = [NSString stringWithFormat:@"%-15s", display];
+                        hostAddress = [NSString stringWithFormat:@"%s", display];
                     }
                     
                     else if (fromAddr.sa_family == AF_INET6) {
